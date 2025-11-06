@@ -20,6 +20,7 @@
             background-color: #ffffff;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            position: relative; /* Adicionado para posicionar o botão */
         }
 
         h1 {
@@ -87,6 +88,86 @@
         .search-button:hover {
             background-color: #0056b3;
         }
+
+        /* --- NOVO: Botão de Tema --- */
+        .theme-toggle-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+        .theme-toggle-button:hover {
+            background-color: #f0f0f0;
+        }
+        .theme-toggle-button svg {
+            width: 24px;
+            height: 24px;
+        }
+        /* Esconde o ícone da lua por padrão */
+        body:not(.dark) #moonIcon { display: none; }
+        /* Esconde o ícone do sol quando em modo escuro */
+        .dark #sunIcon { display: none; }
+        .dark #moonIcon { display: block; }
+
+
+        /* --- NOVO: Estilos do Modo Escuro --- */
+        body.dark {
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+        .dark .container {
+            background-color: #1e1e1e;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .dark h1 {
+            color: #ffffff;
+        }
+        .dark .form-group label {
+            color: #ccc;
+        }
+        .dark .form-input {
+            background-color: #2c2c2c;
+            color: #e0e0e0;
+            border: 1px solid #444;
+        }
+        .dark .form-input::placeholder {
+            color: #888;
+        }
+        .dark .video-card {
+            background-color: #2a2a2a;
+            border: 1px solid #444;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+        }
+        .dark .metrics {
+            color: #bbb;
+        }
+        .dark .load-more-button {
+            color: #0d8eff;
+            background-color: #1e1e1e;
+            border-color: #0d8eff;
+        }
+        .dark .load-more-button:hover {
+            background-color: #0d8eff;
+            color: #fff;
+        }
+        .dark #noMoreResults {
+            color: #888;
+        }
+        .dark .theme-toggle-button {
+            color: #e0e0e0;
+        }
+        .dark .theme-toggle-button:hover {
+            background-color: #333;
+        }
+
 
         /* Indicador de Carregamento Principal */
         .loader {
@@ -173,6 +254,18 @@
 <body>
 
     <div class="container">
+        <!-- --- NOVO: Botão de Tema Adicionado --- -->
+        <button id="themeToggle" class="theme-toggle-button" aria-label="Alternar tema">
+            <!-- Ícone do Sol -->
+            <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-6.364-.386 1.591-1.591M3 12H.75m.386-6.364 1.591 1.591M12 12a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z" />
+            </svg>
+            <!-- Ícone da Lua -->
+            <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+            </svg>
+        </button>
+        
         <h1>Olá user, Seja bem vindo</h1>
 
         <!-- --- MUDANÇA 1: Formulário de Pesquisa Atualizado --- -->
@@ -221,6 +314,7 @@
         const temaInput = document.getElementById('temaInput');
         const palavrasChaveInput = document.getElementById('palavrasChaveInput');
         const maxResultsInput = document.getElementById('maxResultsInput');
+        const themeToggle = document.getElementById('themeToggle'); // --- NOVO ---
         
         const webhookUrl = 'https://n8n.oficinahub.xyz/webhook/009e8e27-2464-4060-ad0c-79c97cc79f47';
 
@@ -229,6 +323,26 @@
         let currentSearchTerm = '';
         let currentMaxResults = 25;
         let currentPageToken = null; // O YouTube usa "Page Tokens", não números de página
+
+        // --- NOVO: Lógica do Tema ---
+        // Verifica se há um tema salvo no localStorage
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark');
+        }
+
+        // Adiciona o evento de clique ao botão de tema
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+            
+            // Salva a preferência no localStorage
+            if (document.body.classList.contains('dark')) {
+                localStorage.setItem('theme', 'dark');
+            } else {
+                localStorage.setItem('theme', 'light');
+            }
+        });
+        // --- Fim da Lógica do Tema ---
+
 
         // Evento para NOVA BUSCA
         searchForm.addEventListener('submit', async (event) => {
@@ -382,5 +496,3 @@
     </script>
 </body>
 </html>
-
-
