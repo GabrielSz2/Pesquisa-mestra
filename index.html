@@ -5,70 +5,106 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pesquisa de Nicho V3</title>
     <style>
+        /* Estilos Globais */
+        :root {
+            --bg-color-light: #f4f7f6;
+            --text-color-light: #1a1a1a;
+            --card-bg-light: #ffffff;
+            --border-color-light: #ddd;
+            --shadow-light: rgba(0, 0, 0, 0.05);
+            --input-bg-light: #fff;
+            --hover-light: #f9f9f9;
+
+            --bg-color-dark: #121212;
+            --text-color-dark: #e0e0e0;
+            --card-bg-dark: #1e1e1e;
+            --border-color-dark: #444;
+            --shadow-dark: rgba(0, 0, 0, 0.2);
+            --input-bg-dark: #333;
+            --hover-dark: #2a2a2a;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f4f7f6;
-            color: #333;
+            background-color: var(--bg-color-light);
+            color: var(--text-color-light);
             margin: 0;
             padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         .container {
             max-width: 900px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #ffffff;
+            background-color: var(--card-bg-light);
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            position: relative; /* Adicionado para posicionar o botão */
+            box-shadow: 0 4px 12px var(--shadow-light);
+            transition: background-color 0.3s;
+            position: relative; /* Para o botão de tema */
         }
 
         h1 {
-            color: #1a1a1a;
+            color: var(--text-color-light);
             text-align: center;
         }
 
-        /* --- MUDANÇA 1: Formulário de Pesquisa --- */
-        .search-form {
-            display: grid;
-            grid-template-columns: 1fr 1fr; /* Duas colunas */
-            gap: 15px;
-            margin-bottom: 20px;
+        /* --- NOVO: Botão de Tema --- */
+        #themeToggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: 1px solid var(--border-color-light);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        #themeToggle:hover {
+            background-color: var(--hover-light);
         }
 
+        /* Formulário de Pesquisa */
+        .search-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+            align-items: flex-end;
+        }
         .form-group {
             display: flex;
             flex-direction: column;
         }
-        
         .form-group label {
-            font-weight: 600;
             margin-bottom: 5px;
             font-size: 14px;
+            font-weight: 500;
         }
-
-        .form-input {
+        .search-input {
             padding: 12px 15px;
             font-size: 16px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--border-color-light);
             border-radius: 6px;
-            box-sizing: border-box; 
+            box-sizing: border-box;
+            width: 100%;
+            background-color: var(--input-bg-light);
+            color: var(--text-color-light);
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
         }
-
-        /* Campo de resultados e botão para ficarem na linha de baixo */
+        /* Agrupa o campo de 2 colunas */
         .form-group.full-width {
-            grid-column: 1 / -1; /* Ocupa a largura total */
+            grid-column: span 2;
         }
-        
-        .form-group.split-2 {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 15px;
-            align-items: flex-end;
-        }
-        
-        #maxResultsInput {
-            width: 80px; /* Largura menor para o número */
+        /* Ajusta o campo de resultados para ficar ao lado do botão */
+        .form-group.results-input {
+            grid-column: span 1;
         }
 
         .search-button {
@@ -81,97 +117,26 @@
             border-radius: 6px;
             cursor: pointer;
             transition: background-color 0.2s;
-            white-space: nowrap;
-            height: 47px; /* Alinha com o input */
+            height: 48px; /* Alinha com os inputs */
+            grid-column: span 2; /* Ocupa 2 colunas */
         }
+        .search-button:hover { background-color: #0056b3; }
 
-        .search-button:hover {
-            background-color: #0056b3;
-        }
-
-        /* --- NOVO: Botão de Tema --- */
-        .theme-toggle-button {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 5px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #333;
-        }
-        .theme-toggle-button:hover {
-            background-color: #f0f0f0;
-        }
-        .theme-toggle-button svg {
-            width: 24px;
-            height: 24px;
-        }
-        /* Esconde o ícone da lua por padrão */
-        body:not(.dark) #moonIcon { display: none; }
-        /* Esconde o ícone do sol quando em modo escuro */
-        .dark #sunIcon { display: none; }
-        .dark #moonIcon { display: block; }
-
-
-        /* --- NOVO: Estilos do Modo Escuro --- */
-        body.dark {
-            background-color: #121212;
-            color: #e0e0e0;
-        }
-        .dark .container {
-            background-color: #1e1e1e;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-        .dark h1 {
-            color: #ffffff;
-        }
-        .dark .form-group label {
-            color: #ccc;
-        }
-        .dark .form-input {
-            background-color: #2c2c2c;
-            color: #e0e0e0;
-            border: 1px solid #444;
-        }
-        .dark .form-input::placeholder {
-            color: #888;
-        }
-        .dark .video-card {
-            background-color: #2a2a2a;
-            border: 1px solid #444;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-        }
-        .dark .metrics {
-            color: #bbb;
-        }
-        .dark .load-more-button {
-            color: #0d8eff;
-            background-color: #1e1e1e;
-            border-color: #0d8eff;
-        }
-        .dark .load-more-button:hover {
-            background-color: #0d8eff;
-            color: #fff;
-        }
-        .dark #noMoreResults {
-            color: #888;
-        }
-        .dark .theme-toggle-button {
-            color: #e0e0e0;
-        }
-        .dark .theme-toggle-button:hover {
-            background-color: #333;
+        /* Ajuste para telas menores */
+        @media (max-width: 600px) {
+            .search-form {
+                grid-template-columns: 1fr; /* Uma coluna */
+            }
+            .form-group.results-input,
+            .search-button {
+                grid-column: span 1; /* Ocupa 1 coluna */
+            }
         }
 
 
-        /* Indicador de Carregamento Principal */
+        /* Indicador de Carregamento */
         .loader {
-            display: none; 
+            display: none; /* Oculto por padrão */
             margin: 40px auto;
             border: 5px solid #f3f3f3;
             border-top: 5px solid #007bff;
@@ -186,17 +151,19 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* Container dos Resultados */
         #results-container {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 20px;
         }
 
+        /* Card de Vídeo ("Caixinha") */
         .video-card {
-            background-color: #fff;
-            border: 1px solid #eee;
+            background-color: var(--card-bg-light);
+            border: 1px solid var(--border-color-light);
             border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 2px 5px var(--shadow-light);
             overflow: hidden; 
             transition: transform 0.2s, box-shadow 0.2s;
         }
@@ -208,13 +175,19 @@
 
         .video-card img { width: 100%; height: auto; display: block; }
         .card-content { padding: 15px; }
+
         .card-content h3 {
-            font-size: 16px; margin-top: 0; margin-bottom: 10px;
-            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-            overflow: hidden; text-overflow: ellipsis; min-height: 38px; 
+            font-size: 16px;
+            margin-top: 0;
+            margin-bottom: 10px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-height: 38px; 
         }
-        /* As métricas (views, likes) não vêm do endpoint /search */
-        /* --- CORREÇÃO: Reativando as métricas pois o JSON as contém --- */
+
         .metrics {
             font-size: 13px;
             color: #555;
@@ -223,6 +196,7 @@
             gap: 15px;
             margin-bottom: 15px;
         }
+
         .metrics span { display: inline-block; }
         
         .video-link {
@@ -230,172 +204,374 @@
             color: #ffffff; text-align: center; text-decoration: none;
             font-weight: bold; border-radius: 5px; box-sizing: border-box;
             transition: background-color 0.2s;
-            margin-top: 15px; /* Adiciona espaço já que as métricas sumiram */
+            margin-top: 15px; 
         }
         .video-link:hover { background-color: #218838; }
+
+        /* --- Botão de Comentários --- */
+        .comments-button {
+            display: block; width: 100%; padding: 10px; background-color: #007bff;
+            color: #ffffff; text-align: center; text-decoration: none;
+            font-weight: bold; border-radius: 5px; box-sizing: border-box;
+            transition: background-color 0.2s;
+            margin-top: 8px; /* Espaço entre os botões */
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .comments-button:hover { background-color: #0056b3; }
+
 
         /* Botão "Carregar Mais" */
         .load-more-container { text-align: center; margin-top: 30px; }
         .load-more-button {
-            padding: 12px 30px; font-size: 16px; font-weight: bold;
-            color: #007bff; background-color: #fff; border: 2px solid #007bff;
-            border-radius: 6px; cursor: pointer; transition: all 0.2s;
-            display: none; /* Começa oculto */
+            padding: 12px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            background-color: #17a2b8;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: none; /* Oculto por padrão */
         }
-        .load-more-button:hover { background-color: #007bff; color: #fff; }
-        .load-more-button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .load-more-button:hover { background-color: #117a8b; }
         .loader-more {
-            display: none; margin: 20px auto; border: 4px solid #f3f3f3;
-            border-top: 4px solid #007bff; border-radius: 50%;
-            width: 24px; height: 24px; animation: spin 1s linear infinite;
+            display: none;
+            margin: 0 auto;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #17a2b8;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
         }
+
+        /* --- NOVO: Modal de Comentários --- */
+        .modal {
+            display: none; /* Oculto por padrão */
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.6);
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 700px;
+            border-radius: 8px;
+            position: relative;
+        }
+        .close-button {
+            color: #aaa;
+            position: absolute;
+            top: 10px;
+            right: 25px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+        }
+        .comments-list {
+            max-height: 60vh;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        .comment {
+            border-bottom: 1px solid #eee;
+            padding: 10px 0;
+        }
+        .comment-author {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        .comment-text {
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        .modal-title {
+            margin-top: 0;
+        }
+        
+        /* --- NOVO: Loader para o Modal --- */
+        .modal-loader {
+            display: none; /* Oculto por padrão */
+            margin: 40px auto;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #007bff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        .dark .modal-loader {
+            border-color: #444;
+            border-top-color: #0d8eff;
+        }
+
+
+        /* --- MODO ESCURO --- */
+        .dark {
+            --bg-color-light: var(--bg-color-dark);
+            --text-color-light: var(--text-color-dark);
+            --card-bg-light: var(--card-bg-dark);
+            --border-color-light: var(--border-color-dark);
+            --shadow-light: var(--shadow-dark);
+            --input-bg-light: var(--input-bg-dark);
+            --hover-light: var(--hover-dark);
+        }
+        
+        /* Modal no Modo Escuro */
+        .dark .modal-content {
+            background-color: #2c2c2c;
+            border-color: #555;
+        }
+        .dark .close-button {
+            color: #aaa;
+        }
+        .dark .close-button:hover,
+        .dark .close-button:focus {
+            color: #fff;
+        }
+        .dark .comment {
+            border-bottom-color: #444;
+        }
+        .dark .comment-author {
+            color: #0d8eff;
+        }
+        .dark .comment-text {
+            color: #e0e0e0;
+        }
+
     </style>
 </head>
 <body>
 
     <div class="container">
-        <!-- --- NOVO: Botão de Tema Adicionado --- -->
-        <button id="themeToggle" class="theme-toggle-button" aria-label="Alternar tema">
-            <!-- Ícone do Sol -->
-            <svg id="sunIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-6.364-.386 1.591-1.591M3 12H.75m.386-6.364 1.591 1.591M12 12a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z" />
-            </svg>
-            <!-- Ícone da Lua -->
-            <svg id="moonIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
-            </svg>
-        </button>
-        
+        <!-- NOVO: Botão de Tema -->
+        <button id="themeToggle" title="Mudar tema">☀️</button>
+
         <h1>Olá user, Seja bem vindo</h1>
 
-        <!-- --- MUDANÇA 1: Formulário de Pesquisa Atualizado --- -->
         <form class="search-form" id="searchForm">
-            <div class="form-group">
-                <label for="temaInput">Tema Principal</label>
-                <input type="text" id="temaInput" class="form-input" placeholder="Ex: Emagrecimento, Marketing Digital...">
+            <div class="form-group full-width">
+                <label for="themeInput">Tema Principal</label>
+                <input type="text" id="themeInput" class="search-input" placeholder="Ex: academia, finanças..." required>
             </div>
-
-            <div class="form-group">
-                <label for="palavrasChaveInput">Palavras-chave (Opcional)</label>
-                <input type="text" id="palavrasChaveInput" class="form-input" placeholder="Ex: Dieta low carb, Funil de vendas...">
+            <div class="form-group full-width">
+                <label for="keywordsInput">Palavras-chave (Opcional)</label>
+                <input type="text" id="keywordsInput" class="search-input" placeholder="Ex: musculação, treino peito...">
             </div>
-
-            <div class="form-group full-width split-2">
-                <div class="form-group">
-                    <label for="maxResultsInput">Resultados por busca</label>
-                    <!-- ATUALIZAÇÃO: Alterado max="50" para max="100" a pedido do usuário -->
-                    <input type="number" id="maxResultsInput" class="form-input" value="25" min="1" max="100">
-                </div>
-                <button type="submit" class="search-button">Pesquisar</button>
+            <div class="form-group results-input">
+                <label for="maxResultsInput">Resultados (Máx: 100)</label>
+                <input type="number" id="maxResultsInput" class="search-input" value="25" min="1" max="100" required>
             </div>
+            <button type="submit" class="search-button">Pesquisar</button>
         </form>
 
+        <!-- Indicador de Carregamento -->
         <div class="loader" id="loading"></div>
+
+        <!-- Resultados serão inseridos aqui -->
         <div id="results-container"></div>
 
-        <div class="load-more-container">
+        <!-- "Carregar Mais" Container -->
+        <div class="load-more-container" id="loadMoreContainer">
             <div class="loader-more" id="loadingMore"></div>
             <button class="load-more-button" id="loadMoreButton">Carregar Mais</button>
             <p id="noMoreResults" style="display: none; color: #777;">Não há mais resultados.</p>
         </div>
     </div>
 
+    <!-- --- NOVO: Modal de Comentários HTML --- -->
+    <div id="commentsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="closeModal">&times;</span>
+            <h2 class="modal-title">Principais Comentários</h2>
+            <div class="comments-list" id="commentsList">
+                <!-- Comentários serão inseridos aqui via JS -->
+                <div class="modal-loader" id="commentsLoader"></div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Seleciona os elementos do DOM
         const searchForm = document.getElementById('searchForm');
+        const mainInput = document.getElementById('themeInput'); 
+        const keywordsInput = document.getElementById('keywordsInput');
+        const maxResultsInput = document.getElementById('maxResultsInput');
         const resultsContainer = document.getElementById('results-container');
         const loading = document.getElementById('loading');
-        
-        const loadMoreButton = document.getElementById('loadMoreButton');
         const loadingMore = document.getElementById('loadingMore');
+        const loadMoreButton = document.getElementById('loadMoreButton');
         const noMoreResults = document.getElementById('noMoreResults');
-
-        // Inputs do formulário
-        const temaInput = document.getElementById('temaInput');
-        const palavrasChaveInput = document.getElementById('palavrasChaveInput');
-        const maxResultsInput = document.getElementById('maxResultsInput');
-        const themeToggle = document.getElementById('themeToggle'); // --- NOVO ---
+        const themeToggle = document.getElementById('themeToggle'); 
         
+        const commentsModal = document.getElementById('commentsModal');
+        const closeModal = document.getElementById('closeModal');
+        const commentsList = document.getElementById('commentsList');
+        const commentsLoader = document.getElementById('commentsLoader'); 
+
         const webhookUrl = 'https://n8n.oficinahub.xyz/webhook/009e8e27-2464-4060-ad0c-79c97cc79f47';
+        // --- NOVO: URL do Webhook de Comentários ---
+        const webhookCommentsUrl = 'https://n8n.oficinahub.xyz/webhook/commentspesquisamestra';
 
-        // --- MUDANÇA 3: Lógica de Paginação ---
-        // Variáveis para guardar o estado da busca ATUAL
-        let currentSearchTerm = '';
-        let currentMaxResults = 25;
-        let currentPageToken = null; // O YouTube usa "Page Tokens", não números de página
+        let allVideosData = {}; // Objeto/mapa para guardar dados dos vídeos
 
-        // --- NOVO: Lógica do Tema ---
-        // Verifica se há um tema salvo no localStorage
-        if (localStorage.getItem('theme') === 'dark') {
-            document.body.classList.add('dark');
-        }
+        let currentPageToken = null; 
+        let currentSearchTerm = '';   
+        let currentMaxResults = 25;   
 
-        // Adiciona o evento de clique ao botão de tema
-        themeToggle.addEventListener('click', () => {
-            document.body.classList.toggle('dark');
-            
-            // Salva a preferência no localStorage
-            if (document.body.classList.contains('dark')) {
-                localStorage.setItem('theme', 'dark');
-            } else {
-                localStorage.setItem('theme', 'light');
-            }
-        });
-        // --- Fim da Lógica do Tema ---
-
-
-        // Evento para NOVA BUSCA
+        // Evento de submit do formulário
         searchForm.addEventListener('submit', async (event) => {
             event.preventDefault(); 
-            
-            // 1. Combina os campos de busca
-            const tema = temaInput.value;
-            const palavras = palavrasChaveInput.value;
-            currentSearchTerm = [tema, palavras].filter(Boolean).join(' '); // Combina "Tema" e "Palavras-chave"
+
+            const mainTerm = mainInput.value;
+            const keywords = keywordsInput.value;
             currentMaxResults = maxResultsInput.value;
+            currentSearchTerm = `${mainTerm} ${keywords}`.trim();
 
-            if (!currentSearchTerm) {
-                alert("Por favor, preencha pelo menos o campo 'Tema Principal'.");
-                return;
-            }
-
-            // 2. Reseta o estado para uma nova busca
-            currentPageToken = null; // ESSENCIAL: Reseta o token
+            if (!currentSearchTerm) return;
+            
+            currentPageToken = null; 
+            allVideosData = {}; 
             resultsContainer.innerHTML = '';      
             loading.style.display = 'block';      
-            loadMoreButton.style.display = 'none';
-            noMoreResults.style.display = 'none'; 
-            
+            loadMoreButton.style.display = 'none'; 
+            noMoreResults.style.display = 'none';
+
             await performSearch();
-            
-            loading.style.display = 'none'; 
         });
 
-        // Evento para CARREGAR MAIS
+        // Evento de clique no "Carregar Mais"
         loadMoreButton.addEventListener('click', async () => {
-            // Não precisa ler os inputs, ele usa o estado da busca atual
-            // O `currentPageToken` já foi salvo da busca anterior
-            
             loadingMore.style.display = 'block';    
-            loadMoreButton.disabled = true;         
+            loadMoreButton.style.display = 'none';  
             
             await performSearch();
-            
-            loadingMore.style.display = 'none'; 
-            loadMoreButton.disabled = false;    
         });
 
-        // Função principal de busca (reutilizada)
-        async function performSearch() {
+        // Event Listeners dos botões nos cards
+        resultsContainer.addEventListener('click', (event) => {
+            if (event.target.classList.contains('comments-button')) {
+                const videoId = event.target.dataset.videoId;
+                openCommentsModal(videoId);
+            }
+        });
+
+        // Fecha o modal
+        closeModal.addEventListener('click', () => {
+            commentsModal.style.display = 'none';
+        });
+
+        // Fecha o modal ao clicar fora
+        window.addEventListener('click', (event) => {
+            if (event.target == commentsModal) {
+                commentsModal.style.display = 'none';
+            }
+        });
+
+        // --- ATUALIZADO: Função para buscar comentários ---
+        async function openCommentsModal(videoId) {
+            commentsList.innerHTML = '';
+            commentsLoader.style.display = 'block';
+            commentsModal.style.display = 'block';
+
+            // Pega os dados completos do vídeo que salvamos
+            const videoData = allVideosData[videoId];
+            if (!videoData) {
+                 console.error("Dados do vídeo não encontrados no cache:", videoId);
+                 commentsLoader.style.display = 'none';
+                 commentsList.innerHTML = '<p style="color: red;">Erro: dados do vídeo não encontrados.</p>';
+                 return;
+            }
+
             try {
-                const response = await fetch(webhookUrl, {
+                // --- ATUALIZADO: Chama o novo webhook de comentários ---
+                const response = await fetch(webhookCommentsUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        // O front-end envia os 3 parâmetros
+                    // Envia o objeto de vídeo INTEIRO e o videoId
+                    body: JSON.stringify({
+                        videoId: videoId,
+                        videoData: videoData // Envia todos os dados do vídeo
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erro na requisição: ${response.statusText}`);
+                }
+
+                // --- CORREÇÃO INICIA AQUI ---
+                // O n8n retorna uma LISTA [ {} ] contendo o objeto da API do YouTube
+                const responseData = await response.json();
+                
+                // Pegamos o primeiro item da lista (o objeto da API)
+                const commentResponseObject = responseData[0];
+                
+                // Pegamos a lista de comentários de dentro da propriedade "items"
+                const commentsListItems = commentResponseObject ? commentResponseObject.items : [];
+                // --- CORREÇÃO TERMINA AQUI ---
+
+                commentsLoader.style.display = 'none';
+
+                // Agora iteramos sobre a lista correta
+                if (commentsListItems && commentsListItems.length > 0) {
+                    commentsListItems.forEach(comment => {
+                        const commentData = comment.snippet.topLevelComment.snippet;
+                        const author = commentData.authorDisplayName;
+                        const text = commentData.textDisplay; 
+                        
+                        const commentEl = document.createElement('div');
+                        commentEl.className = 'comment';
+                        commentEl.innerHTML = `
+                            <div class="comment-author">@${author}</div>
+                            <div class="comment-text">${text}</div>
+                        `;
+                        commentsList.appendChild(commentEl);
+                    });
+                } else {
+                    commentsList.innerHTML = '<p>Nenhum comentário encontrado.</p>';
+                }
+
+            } catch (error) {
+                console.error("Falha ao buscar comentários:", error);
+                commentsLoader.style.display = 'none';
+                commentsList.innerHTML = '<p style="color: red;">Erro ao carregar os comentários.</p>';
+            }
+        }
+
+
+        // Função principal de busca (para vídeos)
+        async function performSearch() {
+            loadMoreButton.style.display = 'none';
+            noMoreResults.style.display = 'none';
+
+            try {
+                // Chama o webhook PRINCIPAL (de busca de vídeo)
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
                         searchTerm: currentSearchTerm,
                         maxResults: currentMaxResults,
-                        pageToken: currentPageToken // Na primeira busca, isso será `null`
+                        pageToken: currentPageToken 
                     })
                 });
 
@@ -405,94 +581,116 @@
 
                 const data = await response.json();
                 
-                // Processa a resposta do n8n (que DEVE conter "items" e "nextPageToken")
                 displayResults(data);
 
-            } catch (error) { 
+            } catch (error) {
                 console.error('Falha ao buscar dados:', error);
-                // Evita apagar resultados antigos se o "Carregar Mais" falhar
-                if (currentPageToken === null) { 
-                    resultsContainer.innerHTML = `<p style="color: red; text-align: center;">Ocorreu um erro ao buscar os dados. Tente novamente.</p>`;
-                } else {
-                    alert("Ocorreu um erro ao carregar mais resultados.");
-                }
+                resultsContainer.innerHTML = `<p style="color: red; text-align: center;">Ocorreu um erro ao buscar os dados. Tente novamente.</p>`;
+            
+            } finally {
+                loading.style.display = 'none';
+                loadingMore.style.display = 'none';
             }
         }
 
         // Função para exibir os resultados
         function displayResults(data) {
-            // --- CORREÇÃO (VOLTA) ---
-            // Lendo a resposta do endpoint /videos (que é uma LISTA de objetos)
+            
             // O n8n está enviando uma LISTA (Array) de respostas.
             // Precisamos extrair o vídeo de "items[0]" de cada item da lista.
             const videos = data.map(response => response.items[0]);
-            
-            // Salva o token da PRÓXIMA página.
-            // --- CORREÇÃO ---
-            // O JSON do /videos não tem token de paginação. "Carregar Mais" será desabilitado.
-            currentPageToken = null; 
 
+            // --- CORREÇÃO ---
+            // O n8n NÃO ESTÁ enviando o `nextPageToken`
+            // currentPageToken = data.nextPageToken; 
+            
             if (!videos || videos.length === 0) {
-                if (currentPageToken === null) { // Apenas se for a primeira página
+                if (currentPageToken === null) { 
                     resultsContainer.innerHTML = `<p style="text-align: center;">Nenhum resultado encontrado para "${currentSearchTerm}".</p>`;
                 }
-                loadMoreButton.style.display = 'none'; 
+                loadMoreButton.style.display = 'none';
                 noMoreResults.style.display = 'block';
                 return;
             }
-            
+
+            // Itera sobre cada vídeo na lista
             videos.forEach(video => {
-                // --- CORREÇÃO DE LÓGICA ---
-                // O "video" agora é o item da lista "items"
-                
-                // Checagem de segurança para o formato /videos
                 if (video && video.id && video.snippet) { 
-                    // No endpoint 'videos', o ID fica direto em `id`
+                    // Adiciona o vídeo completo ao cache
+                    allVideosData[video.id] = video; 
+
                     const videoId = video.id; 
                     const title = video.snippet.title;
-                    // Usa a thumbnail 'high' (boa qualidade)
                     const thumbnailUrl = video.snippet.thumbnails.high.url; 
                     const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
                     
-                    // --- RE-ADICIONADO ---
-                    // As estatísticas ESTÃO PRESENTES neste JSON!
-                    const statistics = video.statistics || { viewCount: 0, likeCount: 0, commentCount: 0 };
-                    const viewCount = parseInt(statistics.viewCount).toLocaleString('pt-BR');
-                    const likeCount = parseInt(statistics.likeCount).toLocaleString('pt-BR');
-                    const commentCount = parseInt(statistics.commentCount).toLocaleString('pt-BR');
+                    const viewCount = video.statistics?.viewCount ? parseInt(video.statistics.viewCount).toLocaleString('pt-BR') : '...';
+                    const likeCount = video.statistics?.likeCount ? parseInt(video.statistics.likeCount).toLocaleString('pt-BR') : '...';
+                    const commentCount = video.statistics?.commentCount ? parseInt(video.statistics.commentCount).toLocaleString('pt-BR') : '...';
                     
-                    const cardHTML = `
-                        <div class="video-card">
-                            <img src="${thumbnailUrl}" alt="Thumbnail do vídeo">
-                            <div class="card-content">
-                                <h3>${title}</h3>
-                                <!-- Métricas (Views, Likes, Comentários) -->
-                                <div class="metrics">
-                                    <span>👁️ ${viewCount}</span>
-                                    <span>👍 ${likeCount}</span>
-                                    <span>💬 ${commentCount}</span>
-                                </div>
-                                <a href="${videoUrl}" target="_blank" rel="noopener noreferrer" class="video-link">
-                                    Ir para o Vídeo
-                                </a>
-                            </div>
-                        </div>
-                    `;
+                    const cardHTML = createVideoCardHTML({
+                        videoId, title, thumbnailUrl, videoUrl,
+                        viewCount, likeCount, commentCount
+                    });
                     
                     resultsContainer.innerHTML += cardHTML;
                 }
             });
 
-            // Decide se mostra ou esconde o botão "Carregar Mais"
+            // Se o n8n TIVESSE enviado um `nextPageToken`, esta lógica funcionaria
             if (currentPageToken) {
-                loadMoreButton.style.display = 'block';
+                loadMoreButton.style.display = 'block'; 
                 noMoreResults.style.display = 'none';
             } else {
                 loadMoreButton.style.display = 'none';
-                noMoreResults.style.display = 'block';
+                noMoreResults.style.display = 'block'; 
             }
         }
 
+        // Função separada para criar o HTML do card
+        function createVideoCardHTML(video) {
+            return `
+                <div class="video-card">
+                    <img src="${video.thumbnailUrl}" alt="Thumbnail do vídeo">
+                    <div class="card-content">
+                        <h3>${video.title}</h3>
+                        <div class="metrics">
+                            <span>👁️ ${video.viewCount}</span>
+                            <span>👍 ${video.likeCount}</span>
+                            <span>💬 ${video.commentCount}</span>
+                        </div>
+                        <a href="${video.videoUrl}" target="_blank" rel="noopener noreferrer" class="video-link">
+                            Ir para o Vídeo
+                        </a>
+                        <button class="comments-button" data-video-id="${video.videoId}">
+                            Ver Comentários
+                        </button>
+                        <!-- Botão Webhook Removido -->
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- Função sendVideoToWebhook REMOVIDA ---
+
+        // --- Lógica do Tema ---
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+            const isDark = document.body.classList.contains('dark');
+            themeToggle.innerText = isDark ? '🌙' : '☀️';
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        });
+
+        // Auto-carrega o tema
+        (function loadTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark');
+                themeToggle.innerText = '🌙';
+            } else {
+                themeToggle.innerText = '☀️';
+            }
+        })();
     </script>
 </body>
 </html>
