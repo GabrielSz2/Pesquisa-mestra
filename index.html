@@ -22,6 +22,12 @@
             --shadow-dark: rgba(0, 0, 0, 0.2);
             --input-bg-dark: #333;
             --hover-dark: #2a2a2a;
+            
+            /* Cores para Categorias */
+            --cat-disrupcao: #ff6b6b;
+            --cat-medos: #feca57;
+            --cat-desejos: #54a0ff;
+            --cat-padrao: #48dbfb;
         }
 
         body {
@@ -41,7 +47,7 @@
             border-radius: 8px;
             box-shadow: 0 4px 12px var(--shadow-light);
             transition: background-color 0.3s;
-            position: relative; /* Para o botão de tema */
+            position: relative;
         }
 
         h1 {
@@ -49,7 +55,7 @@
             text-align: center;
         }
 
-        /* --- NOVO: Botão de Tema --- */
+        /* Botão de Tema */
         #themeToggle {
             position: absolute;
             top: 20px;
@@ -98,14 +104,8 @@
             color: var(--text-color-light);
             transition: background-color 0.3s, color 0.3s, border-color 0.3s;
         }
-        /* Agrupa o campo de 2 colunas */
-        .form-group.full-width {
-            grid-column: span 2;
-        }
-        /* Ajusta o campo de resultados para ficar ao lado do botão */
-        .form-group.results-input {
-            grid-column: span 1;
-        }
+        .form-group.full-width { grid-column: span 2; }
+        .form-group.results-input { grid-column: span 1; }
 
         .search-button {
             padding: 12px 20px;
@@ -117,26 +117,19 @@
             border-radius: 6px;
             cursor: pointer;
             transition: background-color 0.2s;
-            height: 48px; /* Alinha com os inputs */
-            grid-column: span 2; /* Ocupa 2 colunas */
+            height: 48px;
+            grid-column: span 2;
         }
         .search-button:hover { background-color: #0056b3; }
 
-        /* Ajuste para telas menores */
         @media (max-width: 600px) {
-            .search-form {
-                grid-template-columns: 1fr; /* Uma coluna */
-            }
-            .form-group.results-input,
-            .search-button {
-                grid-column: span 1; /* Ocupa 1 coluna */
-            }
+            .search-form { grid-template-columns: 1fr; }
+            .form-group.results-input, .search-button { grid-column: span 1; }
         }
 
-
-        /* Indicador de Carregamento */
+        /* Loader Principal */
         .loader {
-            display: none; /* Oculto por padrão */
+            display: none;
             margin: 40px auto;
             border: 5px solid #f3f3f3;
             border-top: 5px solid #007bff;
@@ -146,19 +139,15 @@
             animation: spin 1s linear infinite;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Container dos Resultados */
+        /* Resultados */
         #results-container {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 20px;
         }
 
-        /* Card de Vídeo ("Caixinha") */
         .video-card {
             background-color: var(--card-bg-light);
             border: 1px solid var(--border-color-light);
@@ -166,6 +155,8 @@
             box-shadow: 0 2px 5px var(--shadow-light);
             overflow: hidden; 
             transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
         }
 
         .video-card:hover {
@@ -174,7 +165,7 @@
         }
 
         .video-card img { width: 100%; height: auto; display: block; }
-        .card-content { padding: 15px; }
+        .card-content { padding: 15px; display: flex; flex-direction: column; flex-grow: 1; }
 
         .card-content h3 {
             font-size: 16px;
@@ -196,7 +187,6 @@
             gap: 15px;
             margin-bottom: 15px;
         }
-
         .metrics span { display: inline-block; }
         
         .video-link {
@@ -204,126 +194,160 @@
             color: #ffffff; text-align: center; text-decoration: none;
             font-weight: bold; border-radius: 5px; box-sizing: border-box;
             transition: background-color 0.2s;
-            margin-top: 15px; 
+            margin-top: auto; /* Empurra para baixo */
         }
         .video-link:hover { background-color: #218838; }
 
-        /* --- Botão de Comentários --- */
-        .comments-button {
-            display: block; width: 100%; padding: 10px; background-color: #007bff;
+        /* --- Botão de Analisar (Antigo Ver Comentários) --- */
+        .analyze-button {
+            display: block; width: 100%; padding: 10px; 
+            background-color: #6c5ce7; /* Roxo para indicar IA/Análise */
             color: #ffffff; text-align: center; text-decoration: none;
             font-weight: bold; border-radius: 5px; box-sizing: border-box;
             transition: background-color 0.2s;
-            margin-top: 8px; /* Espaço entre os botões */
+            margin-top: 10px; /* Um pouco mais de espaço do topo */
+            margin-bottom: 15px; /* --- MUDANÇA: Separação do botão de baixo --- */
             border: none;
             cursor: pointer;
             font-size: 14px;
         }
-        .comments-button:hover { background-color: #0056b3; }
+        .analyze-button:hover { background-color: #5e4dd6; }
 
 
-        /* Botão "Carregar Mais" */
+        /* Botão Carregar Mais */
         .load-more-container { text-align: center; margin-top: 30px; }
         .load-more-button {
-            padding: 12px 25px;
-            font-size: 16px;
-            font-weight: bold;
-            color: #fff;
-            background-color: #17a2b8;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            display: none; /* Oculto por padrão */
+            padding: 12px 25px; font-size: 16px; font-weight: bold; color: #fff;
+            background-color: #17a2b8; border: none; border-radius: 6px;
+            cursor: pointer; transition: background-color 0.2s; display: none;
         }
         .load-more-button:hover { background-color: #117a8b; }
         .loader-more {
-            display: none;
-            margin: 0 auto;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #17a2b8;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
+            display: none; margin: 0 auto; border: 4px solid #f3f3f3;
+            border-top: 4px solid #17a2b8; border-radius: 50%;
+            width: 24px; height: 24px; animation: spin 1s linear infinite;
         }
 
-        /* --- NOVO: Modal de Comentários --- */
+        /* --- Modal de Análise --- */
         .modal {
-            display: none; /* Oculto por padrão */
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.6);
-            padding-top: 60px;
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0;
+            width: 100%; height: 100%; overflow: auto;
+            background-color: rgba(0, 0, 0, 0.6); padding-top: 60px;
         }
         .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto;
-            padding: 20px;
+            background-color: var(--card-bg-light);
+            margin: 2% auto 5% auto; /* Um pouco mais para cima */
+            padding: 25px;
             border: 1px solid #888;
-            width: 80%;
-            max-width: 700px;
-            border-radius: 8px;
+            width: 90%;
+            max-width: 800px;
+            border-radius: 12px;
             position: relative;
+            color: var(--text-color-light);
         }
         .close-button {
-            color: #aaa;
-            position: absolute;
-            top: 10px;
-            right: 25px;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
+            color: #aaa; position: absolute; top: 15px; right: 25px;
+            font-size: 32px; font-weight: bold; cursor: pointer;
         }
-        .close-button:hover,
-        .close-button:focus {
-            color: black;
+        .close-button:hover { color: #555; }
+
+        .modal-title { margin-top: 0; margin-bottom: 20px; font-size: 22px; }
+
+        /* --- Loading Customizado para Análise --- */
+        .analysis-loader-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 0;
+            text-align: center;
         }
-        .comments-list {
-            max-height: 60vh;
+        .analysis-spinner {
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #6c5ce7;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        .loading-text {
+            font-size: 18px; font-weight: 600; margin-bottom: 10px;
+        }
+        .loading-subtext {
+            font-size: 14px; color: #666;
+        }
+        /* Barra de Progresso Falsa */
+        .progress-bar-container {
+            width: 80%; height: 8px; background-color: #eee;
+            border-radius: 4px; margin-top: 20px; overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%; background-color: #6c5ce7; width: 0%;
+            transition: width 0.5s;
+            animation: progressAnimation 30s ease-out forwards; /* Animação de 30s */
+        }
+        @keyframes progressAnimation {
+            0% { width: 0%; }
+            10% { width: 20%; } /* Rápido no começo */
+            50% { width: 60%; } /* Diminui o ritmo */
+            90% { width: 90%; } /* Quase lá */
+            100% { width: 95%; } /* Para um pouco antes de 100% até carregar real */
+        }
+
+
+        /* --- Cards de Insight da Análise --- */
+        .analysis-list {
+            max-height: 70vh;
             overflow-y: auto;
-            margin-top: 20px;
-        }
-        .comment {
-            border-bottom: 1px solid #eee;
-            padding: 10px 0;
-        }
-        .comment-author {
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 4px;
-        }
-        .comment-text {
-            font-size: 15px;
-            line-height: 1.5;
-        }
-        .modal-title {
-            margin-top: 0;
+            padding-right: 10px;
         }
         
-        /* --- NOVO: Loader para o Modal --- */
-        .modal-loader {
-            display: none; /* Oculto por padrão */
-            margin: 40px auto;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #007bff;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-        }
-        .dark .modal-loader {
-            border-color: #444;
-            border-top-color: #0d8eff;
+        .insight-card {
+            background-color: rgba(0,0,0,0.02);
+            border-left: 5px solid var(--cat-padrao);
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
+        .insight-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
 
-        /* --- MODO ESCURO --- */
+        .insight-category {
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            padding: 4px 8px;
+            border-radius: 4px;
+            color: #fff;
+            background-color: var(--cat-padrao);
+        }
+
+        .insight-summary {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-color-light);
+        }
+
+        .insight-original {
+            font-size: 14px;
+            font-style: italic;
+            color: #666;
+            background-color: rgba(0,0,0,0.03);
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .insight-original::before { content: '"'; }
+        .insight-original::after { content: '"'; }
+
+
+        /* Dark Mode Styles */
         .dark {
             --bg-color-light: var(--bg-color-dark);
             --text-color-light: var(--text-color-dark);
@@ -334,37 +358,23 @@
             --hover-light: var(--hover-dark);
         }
         
-        /* Modal no Modo Escuro */
-        .dark .modal-content {
-            background-color: #2c2c2c;
-            border-color: #555;
-        }
-        .dark .close-button {
-            color: #aaa;
-        }
-        .dark .close-button:hover,
-        .dark .close-button:focus {
-            color: #fff;
-        }
-        .dark .comment {
-            border-bottom-color: #444;
-        }
-        .dark .comment-author {
-            color: #0d8eff;
-        }
-        .dark .comment-text {
-            color: #e0e0e0;
-        }
+        .dark .modal-content { border-color: #555; }
+        .dark .close-button { color: #aaa; }
+        .dark .close-button:hover { color: #fff; }
+        .dark .loading-subtext { color: #aaa; }
+        .dark .insight-card { background-color: rgba(255,255,255,0.03); }
+        .dark .insight-summary { color: #fff; }
+        .dark .insight-original { color: #aaa; background-color: rgba(255,255,255,0.05); }
+        .dark .progress-bar-container { background-color: #333; }
 
     </style>
 </head>
 <body>
 
     <div class="container">
-        <!-- NOVO: Botão de Tema -->
         <button id="themeToggle" title="Mudar tema">☀️</button>
 
-        <h1>Olá user, Seja bem vindo</h1>
+        <h1>Pesquisa de Nicho com IA</h1>
 
         <form class="search-form" id="searchForm">
             <div class="form-group full-width">
@@ -382,13 +392,13 @@
             <button type="submit" class="search-button">Pesquisar</button>
         </form>
 
-        <!-- Indicador de Carregamento -->
-        <div class="loader" id="loading"></div>
+        <!-- NOVO: Botão GPT (agora com 'disabled') -->
+        <div class="gpt-button-container">
+        </div>
 
-        <!-- Resultados serão inseridos aqui -->
+        <div class="loader" id="loading"></div>
         <div id="results-container"></div>
 
-        <!-- "Carregar Mais" Container -->
         <div class="load-more-container" id="loadMoreContainer">
             <div class="loader-more" id="loadingMore"></div>
             <button class="load-more-button" id="loadMoreButton">Carregar Mais</button>
@@ -396,20 +406,29 @@
         </div>
     </div>
 
-    <!-- --- NOVO: Modal de Comentários HTML --- -->
-    <div id="commentsModal" class="modal">
+    <!-- Modal de Análise -->
+    <div id="analysisModal" class="modal">
         <div class="modal-content">
             <span class="close-button" id="closeModal">&times;</span>
-            <h2 class="modal-title">Principais Comentários</h2>
-            <div class="comments-list" id="commentsList">
-                <!-- Comentários serão inseridos aqui via JS -->
-                <div class="modal-loader" id="commentsLoader"></div>
+            <h2 class="modal-title">Análise de Dores e Desejos (IA)</h2>
+            
+            <!-- Container de Resultados da Análise -->
+            <div class="analysis-list" id="analysisList"></div>
+            
+            <!-- Loading Especial para Análise -->
+            <div class="analysis-loader-container" id="analysisLoader">
+                <div class="analysis-spinner"></div>
+                <div class="loading-text" id="loadingText">Conectando com a Inteligência Artificial...</div>
+                <div class="loading-subtext">Isso pode levar cerca de 30 segundos para processar todos os comentários.</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Seleciona os elementos do DOM
+        // Seletores
         const searchForm = document.getElementById('searchForm');
         const mainInput = document.getElementById('themeInput'); 
         const keywordsInput = document.getElementById('keywordsInput');
@@ -421,25 +440,26 @@
         const noMoreResults = document.getElementById('noMoreResults');
         const themeToggle = document.getElementById('themeToggle'); 
         
-        const commentsModal = document.getElementById('commentsModal');
+        // Modal
+        const analysisModal = document.getElementById('analysisModal');
         const closeModal = document.getElementById('closeModal');
-        const commentsList = document.getElementById('commentsList');
-        const commentsLoader = document.getElementById('commentsLoader'); 
+        const analysisList = document.getElementById('analysisList');
+        const analysisLoader = document.getElementById('analysisLoader');
+        const loadingText = document.getElementById('loadingText');
+        const progressBar = document.getElementById('progressBar');
 
+        // URLs
         const webhookUrl = 'https://n8n.oficinahub.xyz/webhook/009e8e27-2464-4060-ad0c-79c97cc79f47';
-        // --- NOVO: URL do Webhook de Comentários ---
-        const webhookCommentsUrl = 'https://n8n.oficinahub.xyz/webhook/commentspesquisamestra';
+        const webhookAnalysisUrl = 'https://n8n.oficinahub.xyz/webhook/commentspesquisamestra';
 
-        let allVideosData = {}; // Objeto/mapa para guardar dados dos vídeos
-
+        let allVideosData = {}; 
         let currentPageToken = null; 
         let currentSearchTerm = '';   
         let currentMaxResults = 25;   
 
-        // Evento de submit do formulário
+        // 1. PESQUISA DE VÍDEOS
         searchForm.addEventListener('submit', async (event) => {
             event.preventDefault(); 
-
             const mainTerm = mainInput.value;
             const keywords = keywordsInput.value;
             currentMaxResults = maxResultsInput.value;
@@ -453,121 +473,24 @@
             loading.style.display = 'block';      
             loadMoreButton.style.display = 'none'; 
             noMoreResults.style.display = 'none';
+            // Desabilita o botão na nova pesquisa
 
             await performSearch();
         });
 
-        // Evento de clique no "Carregar Mais"
         loadMoreButton.addEventListener('click', async () => {
             loadingMore.style.display = 'block';    
             loadMoreButton.style.display = 'none';  
-            
             await performSearch();
         });
 
-        // Event Listeners dos botões nos cards
-        resultsContainer.addEventListener('click', (event) => {
-            if (event.target.classList.contains('comments-button')) {
-                const videoId = event.target.dataset.videoId;
-                openCommentsModal(videoId);
-            }
-        });
-
-        // Fecha o modal
-        closeModal.addEventListener('click', () => {
-            commentsModal.style.display = 'none';
-        });
-
-        // Fecha o modal ao clicar fora
-        window.addEventListener('click', (event) => {
-            if (event.target == commentsModal) {
-                commentsModal.style.display = 'none';
-            }
-        });
-
-        // --- ATUALIZADO: Função para buscar comentários ---
-        async function openCommentsModal(videoId) {
-            commentsList.innerHTML = '';
-            commentsLoader.style.display = 'block';
-            commentsModal.style.display = 'block';
-
-            // Pega os dados completos do vídeo que salvamos
-            const videoData = allVideosData[videoId];
-            if (!videoData) {
-                 console.error("Dados do vídeo não encontrados no cache:", videoId);
-                 commentsLoader.style.display = 'none';
-                 commentsList.innerHTML = '<p style="color: red;">Erro: dados do vídeo não encontrados.</p>';
-                 return;
-            }
-
-            try {
-                // --- ATUALIZADO: Chama o novo webhook de comentários ---
-                const response = await fetch(webhookCommentsUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    // Envia o objeto de vídeo INTEIRO e o videoId
-                    body: JSON.stringify({
-                        videoId: videoId,
-                        videoData: videoData // Envia todos os dados do vídeo
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Erro na requisição: ${response.statusText}`);
-                }
-
-                // --- CORREÇÃO INICIA AQUI ---
-                // O n8n retorna uma LISTA [ {} ] contendo o objeto da API do YouTube
-                const responseData = await response.json();
-                
-                // Pegamos o primeiro item da lista (o objeto da API)
-                const commentResponseObject = responseData[0];
-                
-                // Pegamos a lista de comentários de dentro da propriedade "items"
-                const commentsListItems = commentResponseObject ? commentResponseObject.items : [];
-                // --- CORREÇÃO TERMINA AQUI ---
-
-                commentsLoader.style.display = 'none';
-
-                // Agora iteramos sobre a lista correta
-                if (commentsListItems && commentsListItems.length > 0) {
-                    commentsListItems.forEach(comment => {
-                        const commentData = comment.snippet.topLevelComment.snippet;
-                        const author = commentData.authorDisplayName;
-                        const text = commentData.textDisplay; 
-                        
-                        const commentEl = document.createElement('div');
-                        commentEl.className = 'comment';
-                        commentEl.innerHTML = `
-                            <div class="comment-author">@${author}</div>
-                            <div class="comment-text">${text}</div>
-                        `;
-                        commentsList.appendChild(commentEl);
-                    });
-                } else {
-                    commentsList.innerHTML = '<p>Nenhum comentário encontrado.</p>';
-                }
-
-            } catch (error) {
-                console.error("Falha ao buscar comentários:", error);
-                commentsLoader.style.display = 'none';
-                commentsList.innerHTML = '<p style="color: red;">Erro ao carregar os comentários.</p>';
-            }
-        }
-
-
-        // Função principal de busca (para vídeos)
         async function performSearch() {
             loadMoreButton.style.display = 'none';
             noMoreResults.style.display = 'none';
-
             try {
-                // Chama o webhook PRINCIPAL (de busca de vídeo)
                 const response = await fetch(webhookUrl, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         searchTerm: currentSearchTerm,
                         maxResults: currentMaxResults,
@@ -575,105 +498,188 @@
                     })
                 });
 
-                if (!response.ok) {
-                    throw new Error(`Erro na requisição: ${response.statusText}`);
-                }
-
+                if (!response.ok) throw new Error(`Erro: ${response.statusText}`);
                 const data = await response.json();
-                
                 displayResults(data);
 
             } catch (error) {
-                console.error('Falha ao buscar dados:', error);
-                resultsContainer.innerHTML = `<p style="color: red; text-align: center;">Ocorreu um erro ao buscar os dados. Tente novamente.</p>`;
-            
+                console.error('Erro:', error);
+                resultsContainer.innerHTML = `<p style="color: red; text-align: center;">Erro ao buscar dados. Tente novamente.</p>`;
+                // Mantém desabilitado se der erro
             } finally {
                 loading.style.display = 'none';
                 loadingMore.style.display = 'none';
             }
         }
 
-        // Função para exibir os resultados
         function displayResults(data) {
-            
-            // O n8n está enviando uma LISTA (Array) de respostas.
-            // Precisamos extrair o vídeo de "items[0]" de cada item da lista.
-            const videos = data.map(response => response.items[0]);
+            // Tratamento para lista de objetos do n8n
+            const videos = Array.isArray(data) ? data.map(r => r.items ? r.items[0] : null).filter(v => v) : (data.items || []);
+            // currentPageToken = data.nextPageToken; // Descomentar se o n8n retornar token
 
-            // --- CORREÇÃO ---
-            // O n8n NÃO ESTÁ enviando o `nextPageToken`
-            // currentPageToken = data.nextPageToken; 
-            
             if (!videos || videos.length === 0) {
-                if (currentPageToken === null) { 
-                    resultsContainer.innerHTML = `<p style="text-align: center;">Nenhum resultado encontrado para "${currentSearchTerm}".</p>`;
-                }
+                if (!currentPageToken) resultsContainer.innerHTML = `<p style="text-align: center;">Nenhum resultado.</p>`;
                 loadMoreButton.style.display = 'none';
                 noMoreResults.style.display = 'block';
+                // Desabilita se não houver resultados
                 return;
             }
 
-            // Itera sobre cada vídeo na lista
             videos.forEach(video => {
                 if (video && video.id && video.snippet) { 
-                    // Adiciona o vídeo completo ao cache
                     allVideosData[video.id] = video; 
-
                     const videoId = video.id; 
                     const title = video.snippet.title;
                     const thumbnailUrl = video.snippet.thumbnails.high.url; 
                     const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
+                    const stats = video.statistics || {};
+                    const viewCount = stats.viewCount ? parseInt(stats.viewCount).toLocaleString('pt-BR') : '...';
+                    const likeCount = stats.likeCount ? parseInt(stats.likeCount).toLocaleString('pt-BR') : '...';
+                    const commentCount = stats.commentCount ? parseInt(stats.commentCount).toLocaleString('pt-BR') : '...';
                     
-                    const viewCount = video.statistics?.viewCount ? parseInt(video.statistics.viewCount).toLocaleString('pt-BR') : '...';
-                    const likeCount = video.statistics?.likeCount ? parseInt(video.statistics.likeCount).toLocaleString('pt-BR') : '...';
-                    const commentCount = video.statistics?.commentCount ? parseInt(video.statistics.commentCount).toLocaleString('pt-BR') : '...';
-                    
-                    const cardHTML = createVideoCardHTML({
-                        videoId, title, thumbnailUrl, videoUrl,
-                        viewCount, likeCount, commentCount
-                    });
-                    
+                    const cardHTML = `
+                        <div class="video-card">
+                            <img src="${thumbnailUrl}" alt="Thumbnail">
+                            <div class="card-content">
+                                <h3>${title}</h3>
+                                <div class="metrics">
+                                    <span>👁️ ${viewCount}</span>
+                                    <span>👍 ${likeCount}</span>
+                                    <span>💬 ${commentCount}</span>
+                                </div>
+                                <button class="analyze-button" data-video-id="${videoId}">
+                                    Analisar Comentários 🤖
+                                </button>
+                                <a href="${videoUrl}" target="_blank" class="video-link">Ver no YouTube</a>
+                            </div>
+                        </div>
+                    `;
                     resultsContainer.innerHTML += cardHTML;
                 }
             });
 
-            // Se o n8n TIVESSE enviado um `nextPageToken`, esta lógica funcionaria
+            // Lógica simples de paginação (se houver token)
             if (currentPageToken) {
-                loadMoreButton.style.display = 'block'; 
-                noMoreResults.style.display = 'none';
+                loadMoreButton.style.display = 'inline-block';
             } else {
-                loadMoreButton.style.display = 'none';
-                noMoreResults.style.display = 'block'; 
+                // Para este caso específico onde não temos token do n8n, mostramos 'sem mais resultados' apenas no fim
+                // loadMoreButton.style.display = 'none'; 
             }
         }
 
-        // Função separada para criar o HTML do card
-        function createVideoCardHTML(video) {
-            return `
-                <div class="video-card">
-                    <img src="${video.thumbnailUrl}" alt="Thumbnail do vídeo">
-                    <div class="card-content">
-                        <h3>${video.title}</h3>
-                        <div class="metrics">
-                            <span>👁️ ${video.viewCount}</span>
-                            <span>👍 ${video.likeCount}</span>
-                            <span>💬 ${video.commentCount}</span>
-                        </div>
-                        <a href="${video.videoUrl}" target="_blank" rel="noopener noreferrer" class="video-link">
-                            Ir para o Vídeo
-                        </a>
-                        <button class="comments-button" data-video-id="${video.videoId}">
-                            Ver Comentários
-                        </button>
-                        <!-- Botão Webhook Removido -->
-                    </div>
-                </div>
-            `;
+
+        // 2. ANÁLISE DE COMENTÁRIOS (IA)
+        resultsContainer.addEventListener('click', (event) => {
+            if (event.target.classList.contains('analyze-button')) {
+                const videoId = event.target.dataset.videoId;
+                startAnalysis(videoId);
+            }
+        });
+
+        closeModal.addEventListener('click', () => { analysisModal.style.display = 'none'; });
+        window.addEventListener('click', (e) => { if (e.target == analysisModal) analysisModal.style.display = 'none'; });
+
+        async function startAnalysis(videoId) {
+            analysisList.innerHTML = ''; // Limpa anterior
+            analysisLoader.style.display = 'flex'; // Mostra loader novo
+            analysisModal.style.display = 'block';
+            
+            // Reinicia animação da barra
+            progressBar.style.animation = 'none';
+            progressBar.offsetHeight; /* trigger reflow */
+            progressBar.style.animation = 'progressAnimation 30s ease-out forwards';
+
+            // Ciclo de mensagens de espera
+            const messages = [
+                "Conectando com a Inteligência Artificial...",
+                "Lendo os comentários mais relevantes...",
+                "Categorizando dores e desejos...",
+                "Gerando insights estratégicos...",
+                "Finalizando análise..."
+            ];
+            let msgIndex = 0;
+            const msgInterval = setInterval(() => {
+                msgIndex = (msgIndex + 1) % messages.length;
+                loadingText.innerText = messages[msgIndex];
+            }, 5000); // Muda frase a cada 5s
+
+            const videoData = allVideosData[videoId];
+
+            try {
+                const response = await fetch(webhookAnalysisUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ videoId: videoId, videoData: videoData })
+                });
+
+                if (!response.ok) throw new Error('Erro na análise');
+
+                // O n8n retorna uma lista. Pegamos o primeiro item.
+                // Dentro dele tem "message" -> "content" (que é uma STRING JSON)
+                const rawData = await response.json();
+                
+                // Parando o loader
+                clearInterval(msgInterval);
+                analysisLoader.style.display = 'none';
+
+                // Processamento da Resposta Complexa
+                // 1. Acessa o conteúdo da mensagem da IA
+                let contentString = "";
+                
+                if (Array.isArray(rawData) && rawData[0]?.message?.content) {
+                    contentString = rawData[0].message.content;
+                } else if (rawData?.message?.content) {
+                    contentString = rawData.message.content;
+                } else {
+                    throw new Error("Formato de resposta inesperado");
+                }
+
+                // 2. Limpa a string (remove ```json e ```)
+                const cleanJsonString = contentString.replace(/```json\n?|```/g, '').trim();
+
+                // 3. Converte para Objeto JS
+                const insights = JSON.parse(cleanJsonString);
+
+                // 4. Renderiza os Cards
+                renderInsights(insights);
+
+            } catch (error) {
+                clearInterval(msgInterval);
+                analysisLoader.style.display = 'none';
+                console.error(error);
+                analysisList.innerHTML = `<p style="color: red; text-align: center;">Falha ao analisar. A IA pode estar indisponível ou o formato mudou.<br><small>${error.message}</small></p>`;
+            }
         }
 
-        // --- Função sendVideoToWebhook REMOVIDA ---
+        function renderInsights(insights) {
+            if (!insights || insights.length === 0) {
+                analysisList.innerHTML = '<p>Nenhum insight gerado.</p>';
+                return;
+            }
 
-        // --- Lógica do Tema ---
+            insights.forEach(item => {
+                // Define cor baseada na categoria (simplificado)
+                let catColor = 'var(--cat-padrao)';
+                const catLower = item.Categoria.toLowerCase();
+                if (catLower.includes('medo')) catColor = 'var(--cat-medos)';
+                if (catLower.includes('desejo')) catColor = 'var(--cat-desejos)';
+                if (catLower.includes('disrup')) catColor = 'var(--cat-disrupcao)';
+
+                const card = document.createElement('div');
+                card.className = 'insight-card';
+                card.style.borderLeftColor = catColor;
+                card.innerHTML = `
+                    <div class="insight-header">
+                        <span class="insight-category" style="background-color: ${catColor}">${item.Categoria}</span>
+                    </div>
+                    <div class="insight-summary">${item.Resumo_Insight}</div>
+                    <div class="insight-original">${item.Comentario_Original}</div>
+                `;
+                analysisList.appendChild(card);
+            });
+        }
+
+        // Tema Escuro
         themeToggle.addEventListener('click', () => {
             document.body.classList.toggle('dark');
             const isDark = document.body.classList.contains('dark');
@@ -681,16 +687,17 @@
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
         });
 
-        // Auto-carrega o tema
         (function loadTheme() {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark') {
+            if (localStorage.getItem('theme') === 'dark') {
                 document.body.classList.add('dark');
                 themeToggle.innerText = '🌙';
             } else {
                 themeToggle.innerText = '☀️';
             }
         })();
+
+        // --- ATUALIZADO: Função para o botão GPT ---
+
     </script>
 </body>
 </html>
