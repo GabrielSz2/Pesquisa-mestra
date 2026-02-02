@@ -553,7 +553,9 @@
           </select>
         </div>
 
-        <button type="submit" class="search-button">Pesquisar</button>
+        <button type="button" class="search-button" id="searchButton">
+          Pesquisar
+        </button>
       </form>
 
       <div class="gpt-button-container"></div>
@@ -599,6 +601,12 @@
     <script>
       // Seletores
       const searchForm = document.getElementById("searchForm");
+
+      searchButton.addEventListener("click", () => {
+        // dispara o mesmo fluxo do submit (sem recarregar a página)
+        searchForm.dispatchEvent(new Event("submit", { cancelable: true }));
+      });
+
       const mainInput = document.getElementById("themeInput");
       const keywordsInput = document.getElementById("keywordsInput");
       const maxResultsInput = document.getElementById("maxResultsInput");
