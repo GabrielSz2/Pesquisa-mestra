@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pesquisa de Nicho V3</title>
     <style>
-      /* Estilos Globais */
       :root {
         --bg-color-light: #f4f7f6;
         --text-color-light: #1a1a1a;
@@ -23,7 +22,6 @@
         --input-bg-dark: #333;
         --hover-dark: #2a2a2a;
 
-        /* Cores para Categorias */
         --cat-disrupcao: #ff6b6b;
         --cat-medos: #feca57;
         --cat-desejos: #54a0ff;
@@ -59,7 +57,6 @@
         text-align: center;
       }
 
-      /* Botão de Tema */
       #themeToggle {
         position: absolute;
         top: 20px;
@@ -82,7 +79,6 @@
         background-color: var(--hover-light);
       }
 
-      /* Formulário de Pesquisa */
       .search-form {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -147,7 +143,6 @@
         }
       }
 
-      /* Loader Principal */
       .loader {
         display: none;
         margin: 40px auto;
@@ -168,7 +163,6 @@
         }
       }
 
-      /* Resultados */
       #results-container {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -198,6 +192,7 @@
         height: auto;
         display: block;
       }
+
       .card-content {
         padding: 15px;
         display: flex;
@@ -248,7 +243,6 @@
         background-color: #218838;
       }
 
-      /* --- Botão de Analisar --- */
       .analyze-button {
         display: block;
         width: 100%;
@@ -256,13 +250,12 @@
         background-color: #6c5ce7;
         color: #ffffff;
         text-align: center;
-        text-decoration: none;
         font-weight: bold;
         border-radius: 5px;
         box-sizing: border-box;
         transition: background-color 0.2s;
         margin-top: 10px;
-        margin-bottom: 15px;
+        margin-bottom: 10px;
         border: none;
         cursor: pointer;
         font-size: 14px;
@@ -271,7 +264,29 @@
         background-color: #5e4dd6;
       }
 
-      /* Botão Carregar Mais */
+      .full-analyze-button {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        background-color: #fd7e14;
+        color: #ffffff;
+        font-weight: bold;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.2s;
+        margin-top: 0px;
+        margin-bottom: 15px;
+      }
+      .full-analyze-button:hover {
+        background-color: #e46f10;
+      }
+      .full-analyze-button:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
+
       .load-more-container {
         text-align: center;
         margin-top: 30px;
@@ -291,6 +306,7 @@
       .load-more-button:hover {
         background-color: #117a8b;
       }
+
       .loader-more {
         display: none;
         margin: 0 auto;
@@ -302,7 +318,6 @@
         animation: spin 1s linear infinite;
       }
 
-      /* --- Modal de Análise --- */
       .modal {
         display: none;
         position: fixed;
@@ -345,7 +360,6 @@
         font-size: 22px;
       }
 
-      /* --- Loading Customizado para Análise --- */
       .analysis-loader-container {
         display: none;
         flex-direction: column;
@@ -371,6 +385,7 @@
         font-size: 14px;
         color: #666;
       }
+
       .progress-bar-container {
         width: 80%;
         height: 8px;
@@ -404,7 +419,6 @@
         }
       }
 
-      /* --- Cards de Insight da Análise --- */
       .analysis-list {
         max-height: 70vh;
         overflow-y: auto;
@@ -459,7 +473,6 @@
         content: '"';
       }
 
-      /* Dark Mode Styles */
       .dark {
         --bg-color-light: var(--bg-color-dark);
         --text-color-light: var(--text-color-dark);
@@ -469,7 +482,6 @@
         --input-bg-light: var(--input-bg-dark);
         --hover-light: var(--hover-dark);
       }
-
       .dark .modal-content {
         border-color: #555;
       }
@@ -497,6 +509,7 @@
       }
     </style>
   </head>
+
   <body>
     <div class="container">
       <button id="themeToggle" title="Mudar tema">☀️</button>
@@ -538,7 +551,6 @@
           />
         </div>
 
-        <!-- NOVO: Período (últimos X ...) -->
         <div class="form-group results-input">
           <label for="periodSelect">Período</label>
           <select id="periodSelect" class="search-input" required>
@@ -574,7 +586,6 @@
       </div>
     </div>
 
-    <!-- Modal de Análise -->
     <div id="analysisModal" class="modal">
       <div class="modal-content">
         <span class="close-button" id="closeModal">&times;</span>
@@ -599,18 +610,21 @@
     </div>
 
     <script>
+      // URLs (ajuste se necessário)
+      const webhookUrl =
+        "https://n8n.oficinahub.xyz/webhook/009e8e27-2464-4060-ad0c-79c97cc79f47";
+      const webhookAnalysisUrl =
+        "https://n8n.oficinahub.xyz/webhook/commentspesquisamestra";
+      const webhookFullUrl =
+        "https://n8n.oficinahub.xyz/webhook/pesquisamestraanaliseia";
+
       // Seletores
       const searchForm = document.getElementById("searchForm");
-
-      searchButton.addEventListener("click", () => {
-        // dispara o mesmo fluxo do submit (sem recarregar a página)
-        searchForm.dispatchEvent(new Event("submit", { cancelable: true }));
-      });
-
+      const searchButton = document.getElementById("searchButton");
       const mainInput = document.getElementById("themeInput");
       const keywordsInput = document.getElementById("keywordsInput");
       const maxResultsInput = document.getElementById("maxResultsInput");
-      const periodSelect = document.getElementById("periodSelect"); // NOVO
+      const periodSelect = document.getElementById("periodSelect");
       const resultsContainer = document.getElementById("results-container");
       const loading = document.getElementById("loading");
       const loadingMore = document.getElementById("loadingMore");
@@ -626,30 +640,28 @@
       const loadingText = document.getElementById("loadingText");
       const progressBar = document.getElementById("progressBar");
 
-      // URLs
-      const webhookUrl =
-        "https://n8n.oficinahub.xyz/webhook/009e8e27-2464-4060-ad0c-79c97cc79f47";
-      const webhookAnalysisUrl =
-        "https://n8n.oficinahub.xyz/webhook/commentspesquisamestra";
-
       let allVideosData = {};
       let currentPageToken = null;
       let currentSearchTerm = "";
       let currentMaxResults = 25;
 
-      // NOVO: período atual (valor e unidade)
       let currentPeriodValue = 1;
       let currentPeriodUnit = "months";
 
-      // 1. PESQUISA DE VÍDEOS
+      // Botão "Pesquisar" dispara submit controlado
+      searchButton.addEventListener("click", () => {
+        searchForm.dispatchEvent(new Event("submit", { cancelable: true }));
+      });
+
+      // Pesquisa de vídeos
       searchForm.addEventListener("submit", async (event) => {
         event.preventDefault();
+
         const mainTerm = mainInput.value;
         const keywords = keywordsInput.value;
         currentMaxResults = Number(maxResultsInput.value || 25);
         currentSearchTerm = `${mainTerm} ${keywords}`.trim();
 
-        // Lê o select e separa "3_months" => value=3, unit="months"
         const [pValue, pUnit] = (periodSelect.value || "1_months").split("_");
         currentPeriodValue = Number(pValue || 1);
         currentPeriodUnit = pUnit || "months";
@@ -661,7 +673,7 @@
         resultsContainer.innerHTML = "";
         loading.style.display = "block";
         loadMoreButton.style.display = "none";
-        if (noMoreResults) noMoreResults.style.display = "none";
+        noMoreResults.style.display = "none";
 
         await performSearch();
       });
@@ -674,7 +686,7 @@
 
       async function performSearch() {
         loadMoreButton.style.display = "none";
-        if (noMoreResults) noMoreResults.style.display = "none";
+        noMoreResults.style.display = "none";
 
         try {
           const response = await fetch(webhookUrl, {
@@ -684,13 +696,16 @@
               searchTerm: currentSearchTerm,
               maxResults: currentMaxResults,
               pageToken: currentPageToken,
-              // NOVO: campos para o n8n montar publishedAfter
               periodValue: currentPeriodValue,
               periodUnit: currentPeriodUnit,
             }),
           });
 
-          if (!response.ok) throw new Error(`Erro: ${response.statusText}`);
+          if (!response.ok) {
+            const raw = await response.text();
+            throw new Error(`HTTP ${response.status} - ${raw}`);
+          }
+
           const data = await response.json();
           displayResults(data);
         } catch (error) {
@@ -703,7 +718,6 @@
       }
 
       function displayResults(data) {
-        // Tratamento para lista de objetos do n8n
         const videos = Array.isArray(data)
           ? data.map((r) => (r.items ? r.items[0] : null)).filter((v) => v)
           : data.items || [];
@@ -712,13 +726,14 @@
           if (!currentPageToken)
             resultsContainer.innerHTML = `<p style="text-align: center;">Nenhum resultado.</p>`;
           loadMoreButton.style.display = "none";
-          if (noMoreResults) noMoreResults.style.display = "block";
+          noMoreResults.style.display = "block";
           return;
         }
 
         videos.forEach((video) => {
           if (video && video.id && video.snippet) {
             allVideosData[video.id] = video;
+
             const videoId = video.id;
             const title = video.snippet.title;
             const thumbnailUrl = video.snippet.thumbnails.high.url;
@@ -735,38 +750,47 @@
               : "...";
 
             const cardHTML = `
-                        <div class="video-card">
-                            <img src="${thumbnailUrl}" alt="Thumbnail">
-                            <div class="card-content">
-                                <h3>${title}</h3>
-                                <div class="metrics">
-                                    <span>👁️ ${viewCount}</span>
-                                    <span>👍 ${likeCount}</span>
-                                    <span>💬 ${commentCount}</span>
-                                </div>
-                                <button class="analyze-button" data-video-id="${videoId}">
-                                    Analisar Comentários 🤖
-                                </button>
-                                <a href="${videoUrl}" target="_blank" class="video-link">Ver no YouTube</a>
-                            </div>
-                        </div>
-                    `;
+              <div class="video-card">
+                <img src="${thumbnailUrl}" alt="Thumbnail">
+                <div class="card-content">
+                  <h3>${title}</h3>
+                  <div class="metrics">
+                    <span>👁️ ${viewCount}</span>
+                    <span>👍 ${likeCount}</span>
+                    <span>💬 ${commentCount}</span>
+                  </div>
+
+                  <button class="analyze-button" data-video-id="${videoId}">
+                    Analisar Comentários 🤖
+                  </button>
+
+                  <button class="full-analyze-button" data-video-id="${videoId}">
+                    Análise completa
+                  </button>
+
+                  <a href="${videoUrl}" target="_blank" class="video-link">Ver no YouTube</a>
+                </div>
+              </div>
+            `;
             resultsContainer.innerHTML += cardHTML;
           }
         });
 
-        // Se você passar nextPageToken pelo n8n, reative:
+        // se você passar nextPageToken pelo n8n, reative:
         // currentPageToken = data.nextPageToken;
-        if (currentPageToken) {
-          loadMoreButton.style.display = "inline-block";
-        }
+        if (currentPageToken) loadMoreButton.style.display = "inline-block";
       }
 
-      // 2. ANÁLISE DE COMENTÁRIOS (IA)
+      // Delegação de eventos dos botões dentro do card
       resultsContainer.addEventListener("click", (event) => {
         if (event.target.classList.contains("analyze-button")) {
           const videoId = event.target.dataset.videoId;
           startAnalysis(videoId);
+        }
+
+        if (event.target.classList.contains("full-analyze-button")) {
+          const videoId = event.target.dataset.videoId;
+          startFullAnalysis(videoId, event.target);
         }
       });
 
@@ -774,9 +798,101 @@
         analysisModal.style.display = "none";
       });
       window.addEventListener("click", (e) => {
-        if (e.target == analysisModal) analysisModal.style.display = "none";
+        if (e.target === analysisModal) analysisModal.style.display = "none";
       });
 
+      // ---------- Helpers ----------
+      function safeText(v) {
+        return (v ?? "").toString().trim();
+      }
+
+      function extractBucket(insights, keyword) {
+        return (insights || [])
+          .filter((i) => safeText(i.Categoria).toLowerCase().includes(keyword))
+          .map((i) => safeText(i.Resumo_Insight))
+          .filter(Boolean);
+      }
+
+      function extractStructure(estruturaRoteiro) {
+        const s = safeText(estruturaRoteiro);
+
+        const pick = (label) => {
+          const re = new RegExp(
+            `\\[${label}\\][^:]*:\\s*([\\s\\S]*?)(\\n\\n|\\n- \\[|$)`,
+            "i",
+          );
+          const m = s.match(re);
+          return m ? safeText(m[1]).replace(/\n+/g, " ") : "";
+        };
+
+        const gancho = pick("GANCHO\\/ATENÇÃO") || pick("GANCHO") || "";
+        const argumento =
+          pick("O CONFLITO\\/DOR") || pick("O ARGUMENTO LÓGICO") || "";
+        const fechamento = pick("FECHAMENTO\\/CTA") || pick("CTA") || "";
+
+        return { gancho, argumento, fechamento };
+      }
+
+      function buildReportTxt({
+        title,
+        dateStr,
+        estruturaRoteiro,
+        transcription,
+        insights,
+      }) {
+        const { gancho, argumento, fechamento } =
+          extractStructure(estruturaRoteiro);
+
+        const dores = extractBucket(insights, "dor");
+        const desejos = extractBucket(insights, "desejo");
+
+        const lines = [];
+        lines.push("============================================");
+        lines.push("RELATÓRIO DE INTELIGÊNCIA - PESQUISA MESTRE");
+        lines.push(`VÍDEO ALVO: ${title}`);
+        lines.push(`DATA: ${dateStr}`);
+        lines.push("============================================");
+        lines.push("");
+        lines.push("[1] ESTRUTURA LÓGICA (ENGENHARIA REVERSA)");
+        lines.push("--------------------------------------------");
+        lines.push(`- Gancho: ${gancho || "N/A"}`);
+        lines.push(`- Argumento Principal: ${argumento || "N/A"}`);
+        lines.push(`- Fechamento/CTA: ${fechamento || "N/A"}`);
+        lines.push("");
+        lines.push("[2] ANÁLISE DE SENTIMENTO (COMENTÁRIOS)");
+        lines.push("--------------------------------------------");
+        lines.push("> DORES IDENTIFICADAS:");
+        if (dores.length) dores.forEach((d) => lines.push(`- ${d}`));
+        else lines.push("- N/A");
+        lines.push("");
+        lines.push("> DESEJOS IDENTIFICADOS:");
+        if (desejos.length) desejos.forEach((d) => lines.push(`- ${d}`));
+        else lines.push("- N/A");
+        lines.push("");
+        lines.push("[3] TRANSCRIÇÃO COMPLETA");
+        lines.push("--------------------------------------------");
+        lines.push(transcription || "N/A");
+        lines.push("");
+        lines.push("============================================");
+        lines.push("GERADO POR: CYPHER LABS AI");
+        lines.push("============================================");
+
+        return lines.join("\n");
+      }
+
+      function downloadTxt(filename, content) {
+        const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      // ---------- Funções existentes ----------
       async function startAnalysis(videoId) {
         analysisList.innerHTML = "";
         analysisLoader.style.display = "flex";
@@ -816,7 +932,6 @@
           analysisLoader.style.display = "none";
 
           let contentString = "";
-
           if (Array.isArray(rawData) && rawData[0]?.message?.content) {
             contentString = rawData[0].message.content;
           } else if (rawData?.message?.content) {
@@ -856,17 +971,93 @@
           card.className = "insight-card";
           card.style.borderLeftColor = catColor;
           card.innerHTML = `
-                    <div class="insight-header">
-                        <span class="insight-category" style="background-color: ${catColor}">${item.Categoria}</span>
-                    </div>
-                    <div class="insight-summary">${item.Resumo_Insight}</div>
-                    <div class="insight-original">${item.Comentario_Original}</div>
-                `;
+            <div class="insight-header">
+              <span class="insight-category" style="background-color: ${catColor}">${item.Categoria}</span>
+            </div>
+            <div class="insight-summary">${item.Resumo_Insight}</div>
+            <div class="insight-original">${item.Comentario_Original}</div>
+          `;
           analysisList.appendChild(card);
         });
       }
 
-      // Tema Escuro
+      // ---------- Nova funcionalidade ----------
+      async function startFullAnalysis(videoId, buttonEl) {
+        const videoData = allVideosData[videoId];
+        const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
+        const title = safeText(videoData?.snippet?.title) || videoId;
+        const dateStr = new Date().toLocaleString("pt-BR");
+
+        const originalText = buttonEl.innerText;
+        buttonEl.disabled = true;
+        buttonEl.innerText = "Processando...";
+
+        try {
+          // 1) webhook de comentários
+          const r1 = await fetch(webhookAnalysisUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ videoId, videoData }),
+          });
+
+          if (!r1.ok) {
+            const raw = await r1.text();
+            throw new Error(`comments HTTP ${r1.status}: ${raw}`);
+          }
+
+          const rawComments = await r1.json();
+
+          let contentString = "";
+          if (Array.isArray(rawComments) && rawComments[0]?.message?.content) {
+            contentString = rawComments[0].message.content;
+          } else if (rawComments?.message?.content) {
+            contentString = rawComments.message.content;
+          } else {
+            throw new Error("Formato inesperado do webhook comments");
+          }
+
+          const cleanJsonString = contentString
+            .replace(/```json\n?|```/g, "")
+            .trim();
+          const insights = JSON.parse(cleanJsonString);
+
+          // 2) webhook de transcrição/estrutura
+          const r2 = await fetch(webhookFullUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ videoUrl }),
+          });
+
+          if (!r2.ok) {
+            const raw = await r2.text();
+            throw new Error(`analiseia HTTP ${r2.status}: ${raw}`);
+          }
+
+          const transData = await r2.json();
+          const transcription = safeText(transData?.[0]?.Transcricao);
+          const estruturaRoteiro = safeText(transData?.[0]?.estruturaRoteiro);
+
+          // 3) gerar TXT e baixar
+          const reportTxt = buildReportTxt({
+            title,
+            dateStr,
+            estruturaRoteiro,
+            transcription,
+            insights,
+          });
+
+          const safeName = title.replace(/[\\/:*?"<>|]+/g, "").slice(0, 80);
+          downloadTxt(`RELATORIO-${safeName || videoId}.txt`, reportTxt);
+        } catch (err) {
+          console.error(err);
+          alert("Falha na análise completa. Veja o console.");
+        } finally {
+          buttonEl.disabled = false;
+          buttonEl.innerText = originalText;
+        }
+      }
+
+      // Tema
       themeToggle.addEventListener("click", () => {
         document.body.classList.toggle("dark");
         const isDark = document.body.classList.contains("dark");
