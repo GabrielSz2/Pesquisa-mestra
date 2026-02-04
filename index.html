@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pesquisa de Nicho V3</title>
+
     <style>
       :root {
         --bg-color-light: #f4f7f6;
@@ -318,6 +319,7 @@
         animation: spin 1s linear infinite;
       }
 
+      /* Modal */
       .modal {
         display: none;
         position: fixed;
@@ -336,7 +338,7 @@
         padding: 25px;
         border: 1px solid #888;
         width: 90%;
-        max-width: 800px;
+        max-width: 900px;
         border-radius: 12px;
         position: relative;
         color: var(--text-color-light);
@@ -439,6 +441,7 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: 10px;
+        gap: 10px;
       }
 
       .insight-category {
@@ -449,11 +452,12 @@
         border-radius: 4px;
         color: #fff;
         background-color: var(--cat-padrao);
+        white-space: nowrap;
       }
 
       .insight-summary {
         font-size: 16px;
-        font-weight: 600;
+        font-weight: 700;
         margin-bottom: 12px;
         color: var(--text-color-light);
       }
@@ -473,15 +477,49 @@
         content: '"';
       }
 
-      .dark {
-        --bg-color-light: var(--bg-color-dark);
-        --text-color-light: var(--text-color-dark);
-        --card-bg-light: var(--card-bg-dark);
-        --border-color-light: var(--border-color-dark);
-        --shadow-light: var(--shadow-dark);
-        --input-bg-light: var(--input-bg-dark);
-        --hover-light: var(--hover-dark);
+      /* Preview do relatório */
+      .report-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-bottom: 15px;
       }
+      .report-btn {
+        padding: 10px 12px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 14px;
+      }
+      .btn-download {
+        background: #28a745;
+        color: #fff;
+      }
+      .btn-view {
+        background: #007bff;
+        color: #fff;
+      }
+      .btn-close {
+        background: #6c757d;
+        color: #fff;
+      }
+
+      .report-preview {
+        white-space: pre-wrap;
+        font-family:
+          ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
+        font-size: 13px;
+        line-height: 1.4;
+        background: rgba(0, 0, 0, 0.04);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+        padding: 14px;
+        max-height: 55vh;
+        overflow: auto;
+      }
+
       .dark .modal-content {
         border-color: #555;
       }
@@ -506,6 +544,10 @@
       }
       .dark .progress-bar-container {
         background-color: #333;
+      }
+      .dark .report-preview {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.12);
       }
     </style>
   </head>
@@ -570,8 +612,6 @@
         </button>
       </form>
 
-      <div class="gpt-button-container"></div>
-
       <div class="loader" id="loading"></div>
       <div id="results-container"></div>
 
@@ -586,22 +626,18 @@
       </div>
     </div>
 
+    <!-- Modal único (loading + preview + insights) -->
     <div id="analysisModal" class="modal">
       <div class="modal-content">
         <span class="close-button" id="closeModal">&times;</span>
-        <h2 class="modal-title">Análise de Dores e Desejos (IA)</h2>
+        <h2 class="modal-title" id="modalTitle">Análise</h2>
 
         <div class="analysis-list" id="analysisList"></div>
 
         <div class="analysis-loader-container" id="analysisLoader">
           <div class="analysis-spinner"></div>
-          <div class="loading-text" id="loadingText">
-            Conectando com a Inteligência Artificial...
-          </div>
-          <div class="loading-subtext">
-            Isso pode levar cerca de 30 segundos para processar todos os
-            comentários.
-          </div>
+          <div class="loading-text" id="loadingText">Processando...</div>
+          <div class="loading-subtext" id="loadingSubtext">Aguarde...</div>
           <div class="progress-bar-container">
             <div class="progress-bar" id="progressBar"></div>
           </div>
@@ -610,7 +646,7 @@
     </div>
 
     <script>
-      // URLs (ajuste se necessário)
+      // Webhooks
       const webhookUrl =
         "https://n8n.oficinahub.xyz/webhook/009e8e27-2464-4060-ad0c-79c97cc79f47";
       const webhookAnalysisUrl =
@@ -638,7 +674,9 @@
       const analysisList = document.getElementById("analysisList");
       const analysisLoader = document.getElementById("analysisLoader");
       const loadingText = document.getElementById("loadingText");
+      const loadingSubtext = document.getElementById("loadingSubtext");
       const progressBar = document.getElementById("progressBar");
+      const modalTitle = document.getElementById("modalTitle");
 
       let allVideosData = {};
       let currentPageToken = null;
@@ -648,12 +686,43 @@
       let currentPeriodValue = 1;
       let currentPeriodUnit = "months";
 
-      // Botão "Pesquisar" dispara submit controlado
+      // Cache do último relatório gerado (para visualizar/baixar)
+      let lastReport = {
+        filename: null,
+        content: null,
+      };
+
+      // Modal close
+      closeModal.addEventListener(
+        "click",
+        () => (analysisModal.style.display = "none"),
+      );
+      window.addEventListener("click", (e) => {
+        if (e.target === analysisModal) analysisModal.style.display = "none";
+      });
+
+      // Tema
+      themeToggle.addEventListener("click", () => {
+        document.body.classList.toggle("dark");
+        const isDark = document.body.classList.contains("dark");
+        themeToggle.innerText = isDark ? "🌙" : "☀️";
+        localStorage.setItem("theme", isDark ? "dark" : "light");
+      });
+
+      (function loadTheme() {
+        if (localStorage.getItem("theme") === "dark") {
+          document.body.classList.add("dark");
+          themeToggle.innerText = "🌙";
+        } else {
+          themeToggle.innerText = "☀️";
+        }
+      })();
+
+      // Pesquisar
       searchButton.addEventListener("click", () => {
         searchForm.dispatchEvent(new Event("submit", { cancelable: true }));
       });
 
-      // Pesquisa de vídeos
       searchForm.addEventListener("submit", async (event) => {
         event.preventDefault();
 
@@ -749,7 +818,7 @@
               ? parseInt(stats.commentCount).toLocaleString("pt-BR")
               : "...";
 
-            const cardHTML = `
+            resultsContainer.innerHTML += `
               <div class="video-card">
                 <img src="${thumbnailUrl}" alt="Thumbnail">
                 <div class="card-content">
@@ -772,16 +841,15 @@
                 </div>
               </div>
             `;
-            resultsContainer.innerHTML += cardHTML;
           }
         });
 
-        // se você passar nextPageToken pelo n8n, reative:
+        // Se tiver token vindo do n8n:
         // currentPageToken = data.nextPageToken;
         if (currentPageToken) loadMoreButton.style.display = "inline-block";
       }
 
-      // Delegação de eventos dos botões dentro do card
+      // Delegação de eventos
       resultsContainer.addEventListener("click", (event) => {
         if (event.target.classList.contains("analyze-button")) {
           const videoId = event.target.dataset.videoId;
@@ -792,13 +860,6 @@
           const videoId = event.target.dataset.videoId;
           startFullAnalysis(videoId, event.target);
         }
-      });
-
-      closeModal.addEventListener("click", () => {
-        analysisModal.style.display = "none";
-      });
-      window.addEventListener("click", (e) => {
-        if (e.target === analysisModal) analysisModal.style.display = "none";
       });
 
       // ---------- Helpers ----------
@@ -882,38 +943,133 @@
 
       function downloadTxt(filename, content) {
         const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
-        const url = URL.createObjectURL(blob);
+        const url = URL.createObjectURL(blob); // cria URL do Blob [web:250]
         const a = document.createElement("a");
         a.href = url;
         a.download = filename;
         document.body.appendChild(a);
         a.click();
         a.remove();
-        URL.revokeObjectURL(url);
+        URL.revokeObjectURL(url); // libera memória [web:254]
       }
 
-      // ---------- Funções existentes ----------
-      async function startAnalysis(videoId) {
+      function openLoadingModal({ title, subtext, messages }) {
+        modalTitle.innerText = title || "Processando...";
+        loadingSubtext.innerText = subtext || "Aguarde...";
+
         analysisList.innerHTML = "";
-        analysisLoader.style.display = "flex";
         analysisModal.style.display = "block";
+        analysisLoader.style.display = "flex";
 
         progressBar.style.animation = "none";
         progressBar.offsetHeight;
         progressBar.style.animation = "progressAnimation 30s ease-out forwards";
 
-        const messages = [
-          "Conectando com a Inteligência Artificial...",
-          "Lendo os comentários mais relevantes...",
-          "Categorizando dores e desejos...",
-          "Gerando insights estratégicos...",
-          "Finalizando análise...",
-        ];
         let msgIndex = 0;
-        const msgInterval = setInterval(() => {
-          msgIndex = (msgIndex + 1) % messages.length;
+        loadingText.innerText =
+          messages && messages[0] ? messages[0] : "Processando...";
+
+        const interval = setInterval(() => {
+          if (!messages || !messages.length) return;
+          msgIndex = Math.min(msgIndex + 1, messages.length - 1);
           loadingText.innerText = messages[msgIndex];
         }, 5000);
+
+        return interval;
+      }
+
+      function hideLoader() {
+        analysisLoader.style.display = "none";
+      }
+
+      function safeFileName(name) {
+        return safeText(name)
+          .replace(/[\\/:*?"<>|]+/g, "")
+          .slice(0, 80);
+      }
+
+      function showReportFinishScreen() {
+        const filename = lastReport.filename || "RELATORIO.txt";
+        analysisList.innerHTML = `
+          <div class="insight-card">
+            <div class="insight-summary">Relatório pronto</div>
+            <div class="insight-original" style="font-style: normal;">
+              Escolha o que deseja fazer:
+            </div>
+            <div class="report-actions">
+              <button class="report-btn btn-download" id="btnDownloadReport">Baixar TXT</button>
+              <button class="report-btn btn-view" id="btnViewReport">Visualizar</button>
+              <button class="report-btn btn-close" id="btnCloseModal">Fechar</button>
+            </div>
+            <div style="font-size:12px; color:#777;">Arquivo: <b>${filename}</b></div>
+          </div>
+        `;
+
+        document
+          .getElementById("btnDownloadReport")
+          .addEventListener("click", () => {
+            downloadTxt(lastReport.filename, lastReport.content);
+          });
+
+        document
+          .getElementById("btnViewReport")
+          .addEventListener("click", () => {
+            showReportPreview();
+          });
+
+        document
+          .getElementById("btnCloseModal")
+          .addEventListener("click", () => {
+            analysisModal.style.display = "none";
+          });
+      }
+
+      function showReportPreview() {
+        const filename = lastReport.filename || "RELATORIO.txt";
+        const content = lastReport.content || "";
+
+        analysisList.innerHTML = `
+          <div class="insight-card">
+            <div class="insight-summary">Visualização do relatório</div>
+            <div class="report-actions">
+              <button class="report-btn btn-download" id="btnDownloadReport2">Baixar TXT</button>
+              <button class="report-btn btn-close" id="btnBackReport">Voltar</button>
+            </div>
+            <div class="report-preview" id="reportPreview"></div>
+          </div>
+        `;
+
+        document.getElementById("reportPreview").innerText = content;
+
+        document
+          .getElementById("btnDownloadReport2")
+          .addEventListener("click", () => {
+            downloadTxt(lastReport.filename, lastReport.content);
+          });
+
+        document
+          .getElementById("btnBackReport")
+          .addEventListener("click", () => {
+            showReportFinishScreen();
+          });
+
+        modalTitle.innerText = `Relatório: ${filename}`;
+      }
+
+      // ---------- Análise de comentários ----------
+      async function startAnalysis(videoId) {
+        const msgInterval = openLoadingModal({
+          title: "Análise de Dores e Desejos (IA)",
+          subtext:
+            "Isso pode levar cerca de 30 segundos para processar os comentários.",
+          messages: [
+            "Conectando com a Inteligência Artificial...",
+            "Lendo os comentários mais relevantes...",
+            "Categorizando dores e desejos...",
+            "Gerando insights estratégicos...",
+            "Finalizando análise...",
+          ],
+        });
 
         const videoData = allVideosData[videoId];
 
@@ -921,15 +1077,18 @@
           const response = await fetch(webhookAnalysisUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ videoId: videoId, videoData: videoData }),
+            body: JSON.stringify({ videoId, videoData }),
           });
 
-          if (!response.ok) throw new Error("Erro na análise");
+          if (!response.ok) {
+            const raw = await response.text();
+            throw new Error(`HTTP ${response.status} - ${raw}`);
+          }
 
           const rawData = await response.json();
 
           clearInterval(msgInterval);
-          analysisLoader.style.display = "none";
+          hideLoader();
 
           let contentString = "";
           if (Array.isArray(rawData) && rawData[0]?.message?.content) {
@@ -948,13 +1107,17 @@
           renderInsights(insights);
         } catch (error) {
           clearInterval(msgInterval);
-          analysisLoader.style.display = "none";
+          hideLoader();
           console.error(error);
-          analysisList.innerHTML = `<p style="color: red; text-align: center;">Falha ao analisar. A IA pode estar indisponível ou o formato mudou.<br><small>${error.message}</small></p>`;
+          analysisList.innerHTML = `<p style="color: red; text-align: center;">
+            Falha ao analisar.<br><small>${error.message}</small>
+          </p>`;
         }
       }
 
       function renderInsights(insights) {
+        modalTitle.innerText = "Análise de Dores e Desejos (IA)";
+
         if (!insights || insights.length === 0) {
           analysisList.innerHTML = "<p>Nenhum insight gerado.</p>";
           return;
@@ -981,19 +1144,37 @@
         });
       }
 
-      // ---------- Nova funcionalidade ----------
+      // ---------- Análise completa ----------
       async function startFullAnalysis(videoId, buttonEl) {
         const videoData = allVideosData[videoId];
         const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
         const title = safeText(videoData?.snippet?.title) || videoId;
         const dateStr = new Date().toLocaleString("pt-BR");
 
+        // reseta cache do relatório
+        lastReport.filename = null;
+        lastReport.content = null;
+
         const originalText = buttonEl.innerText;
         buttonEl.disabled = true;
         buttonEl.innerText = "Processando...";
 
+        const msgInterval = openLoadingModal({
+          title: "Análise completa (IA)",
+          subtext:
+            "Isso pode levar 30-60 segundos (comentários + transcrição).",
+          messages: [
+            "Iniciando análise completa...",
+            "Analisando comentários (sentimento)...",
+            "Gerando transcrição do vídeo...",
+            "Estruturando roteiro (engenharia reversa)...",
+            "Gerando relatório TXT...",
+            "Finalizando...",
+          ],
+        });
+
         try {
-          // 1) webhook de comentários
+          // 1) Webhook comments (insights)
           const r1 = await fetch(webhookAnalysisUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -1021,7 +1202,7 @@
             .trim();
           const insights = JSON.parse(cleanJsonString);
 
-          // 2) webhook de transcrição/estrutura
+          // 2) Webhook transcrição/estrutura
           const r2 = await fetch(webhookFullUrl, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -1034,10 +1215,38 @@
           }
 
           const transData = await r2.json();
-          const transcription = safeText(transData?.[0]?.Transcricao);
-          const estruturaRoteiro = safeText(transData?.[0]?.estruturaRoteiro);
 
-          // 3) gerar TXT e baixar
+          // aceita array (primeiro item) ou objeto direto
+          const t = Array.isArray(transData)
+            ? transData[0] || {}
+            : transData || {};
+
+          // tenta variações de chave (maiúscula/minúscula e sem acento)
+          const transcription =
+            safeText(t.Transcricao) ||
+            safeText(t.transcricao) ||
+            safeText(t.transcription) ||
+            safeText(t.Transcrição) ||
+            "";
+
+          const estruturaRoteiro =
+            safeText(t.estruturaRoteiro) ||
+            safeText(t.estruturaroteiro) ||
+            safeText(t.estrutura) ||
+            safeText(t.estrutura_roteiro) ||
+            safeText(t.structure) ||
+            "";
+
+          console.log("DEBUG transData:", transData);
+
+          if (!transcription || !estruturaRoteiro) {
+            console.warn(
+              "Transcrição/estrutura vazias. Verifique o formato do webhook.",
+              { transcription, estruturaRoteiro },
+            );
+          }
+
+          // 3) gerar relatório
           const reportTxt = buildReportTxt({
             title,
             dateStr,
@@ -1046,33 +1255,31 @@
             insights,
           });
 
-          const safeName = title.replace(/[\\/:*?"<>|]+/g, "").slice(0, 80);
-          downloadTxt(`RELATORIO-${safeName || videoId}.txt`, reportTxt);
+          const safeName = safeFileName(title);
+          const filename = `RELATORIO-${safeName || videoId}.txt`;
+
+          // guarda no cache para visualizar/baixar depois
+          lastReport.filename = filename;
+          lastReport.content = reportTxt;
+
+          clearInterval(msgInterval);
+          hideLoader();
+
+          // Agora o usuário escolhe: visualizar ou baixar
+          modalTitle.innerText = "Análise completa (IA)";
+          showReportFinishScreen();
         } catch (err) {
+          clearInterval(msgInterval);
+          hideLoader();
           console.error(err);
-          alert("Falha na análise completa. Veja o console.");
+          analysisList.innerHTML = `<p style="color: red; text-align: center;">
+            Falha na análise completa.<br><small>${err.message}</small>
+          </p>`;
         } finally {
           buttonEl.disabled = false;
           buttonEl.innerText = originalText;
         }
       }
-
-      // Tema
-      themeToggle.addEventListener("click", () => {
-        document.body.classList.toggle("dark");
-        const isDark = document.body.classList.contains("dark");
-        themeToggle.innerText = isDark ? "🌙" : "☀️";
-        localStorage.setItem("theme", isDark ? "dark" : "light");
-      });
-
-      (function loadTheme() {
-        if (localStorage.getItem("theme") === "dark") {
-          document.body.classList.add("dark");
-          themeToggle.innerText = "🌙";
-        } else {
-          themeToggle.innerText = "☀️";
-        }
-      })();
     </script>
   </body>
 </html>
